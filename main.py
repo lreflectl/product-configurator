@@ -1,7 +1,7 @@
 import json
-from product import Product
+from product import Product, generate_product_tree
 from filters import filter_color, filter_collection
-from genetic_algorithm import fitness
+from genetic_algorithm import fitness, generate_random_chromosome
 
 
 def main():
@@ -11,12 +11,9 @@ def main():
         for prod_data in data['products']:
             products.append(Product(**prod_data))
 
-    products = filter_color(products, 'green')
-    products = filter_collection(products, 'roman')
-    print(products)
-
-    # todo: put in json
     user_request = {
+        'color': 'green',
+        'collection': 'roman',
         'category_qty': {
             'chandelier': 6,
             'switch': 10
@@ -24,7 +21,17 @@ def main():
         'budget': 5000,
     }
 
-    print(fitness(['model 234', 'model 516'], products, user_request))
+    products = filter_color(products, user_request['color'])
+    products = filter_collection(products, user_request['collection'])
+
+    user_categories = list(user_request['category_qty'].keys())
+    product_tree = generate_product_tree(products, user_categories)
+    print(product_tree)
+
+    chromosome = generate_random_chromosome(product_tree, user_categories)
+    print(chromosome)
+
+    print(fitness(chromosome, products, user_request))
 
 
 if __name__ == '__main__':

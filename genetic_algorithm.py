@@ -25,7 +25,7 @@ def fitness(chromosome: list[str], products: list[Product], user_request: dict) 
     return abs(user_request['budget'] - price_sum)
 
 
-def generate_random_chromosome(product_tree: dict[str, list[Product]], user_categories: list[str]) -> list[str]:
+def generate_random_chromosome(product_tree: dict[str, list[Product]], user_categories: tuple[str]) -> list[str]:
     """
     Create list of random product models for user request
     :param product_tree: dict of category to products
@@ -38,3 +38,25 @@ def generate_random_chromosome(product_tree: dict[str, list[Product]], user_cate
         chromosome.append(random_product.model)
     return chromosome
 
+
+def genetic_algorithm(
+        products: list[Product], product_tree: dict[str, list[Product]], user_request: dict
+) -> list[str]:
+    """
+    Calculate best fitted combination of product models corresponding to user budget and number of chosen categories
+    :param products:
+    :param product_tree:
+    :param user_request:
+    :return:
+    """
+    population_size = 100
+    user_categories = tuple(user_request['category_qty'].keys())
+    initial_population = [
+        generate_random_chromosome(product_tree, user_categories) for _ in range(population_size)
+    ]
+    fitnesses = [
+        fitness(chromosome, products, user_request) for chromosome in initial_population
+    ]
+    # Fast variant. Todo: full genetic algo
+    best_chromosome = sorted(zip(fitnesses, initial_population), key=lambda fit_pop: fit_pop[0])[0]
+    return best_chromosome
